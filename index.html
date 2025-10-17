@@ -42,6 +42,23 @@ button { padding: 10px 15px; font-size: 16px; cursor: pointer; border-radius: 6p
 }
 #sidebar button { background: #f0f0f0; border: 1px solid #ccc; }
 #sidebar button.active { background: #007bff; color: white; border-color: #007bff; }
+.bot h2 {
+    font-size: 22px;
+    color: #2c3e50;
+    margin: 6px 0;
+}
+.bot h3 {
+    font-size: 18px;
+    color: #34495e;
+    margin: 4px 0;
+}
+.bot p {
+    font-size: 16px;
+    margin: 4px 0;
+}
+.bot ul {
+    margin-left: 20px;
+}
 </style>
 </head>
 <body>
@@ -122,7 +139,7 @@ function createAssetInput() {
 function appendMessage(role, text) {
     const div = document.createElement("div");
     div.className = "message " + role;
-    div.innerText = text;
+    div.innerHTML = text;
     chatBox.appendChild(div);
     chatBox.scrollTop = chatBox.scrollHeight;
 }
@@ -204,3 +221,4 @@ window.onload = () => {
 </script>
 </body>
 </html>
+
