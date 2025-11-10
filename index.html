@@ -207,6 +207,20 @@ async function askQuestion() {
         });
         const data = await response.json();
         appendMessage("bot", data.answer);
+
+        // 如果有系統知識庫補充，另外顯示一個黃色區塊
+        if (data.knowledge && data.knowledge.trim() !== "") {
+            const kbDiv = document.createElement("div");
+            kbDiv.className = "message bot";
+            kbDiv.style.backgroundColor = "#fffbe6";
+            kbDiv.style.border = "1px solid #ffe58f";
+            kbDiv.style.padding = "10px";
+            kbDiv.style.marginTop = "5px";
+            kbDiv.innerHTML = `<div style='border-left:4px solid #007bff; padding-left:10px;'>${data.knowledge}</div>`;
+            chatBox.appendChild(kbDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+        
         messages.push({role:"bot", text: data.answer});
     } catch(err) {
         appendMessage("bot", "伺服器出錯，請稍後再試");
@@ -221,4 +235,5 @@ window.onload = () => {
 </script>
 </body>
 </html>
+
 
