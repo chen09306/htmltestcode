@@ -228,6 +228,9 @@ async function askQuestion() {
         endpoint = `${BASE_URL}/ask`;
         document.getElementById("question").value = "";
 
+        // KB 顯示等待訊息
+        kbBox.innerHTML = "系統知識庫正在生成中，請稍候…";
+
     } else if(currentFunction === 2) {
         const q = document.getElementById("question").value.trim();
         if(!q) return;
@@ -235,6 +238,9 @@ async function askQuestion() {
         payload = { question: q };
         endpoint = `${BASE_URL}/news`;
         document.getElementById("question").value = "";
+
+        // KB 功能只在功能1顯示，所以這裡清空
+        kbBox.innerHTML = "";
 
     } else {
         const age = document.getElementById("age").value || null;
@@ -245,6 +251,8 @@ async function askQuestion() {
         payload = { age, risk_level: risk, amount };
         endpoint = `${BASE_URL}/asset`;
         document.getElementById("amount").value = "";
+
+        kbBox.innerHTML = "";
     }
 
     try {
@@ -255,18 +263,23 @@ async function askQuestion() {
         });
         const data = await res.json();
 
+        // 更新聊天框
         appendMessage("bot", data.answer);
 
-        // KB 只在功能 1 顯示
-        if (currentFunction === 1 && data.kb_text) {
+        // 更新 KBBOX（只在功能1）
+        if(currentFunction === 1 && data.kb_text) {
             kbBox.innerHTML = data.kb_text;
+        } else {
+            kbBox.innerHTML = "";
         }
 
     } catch(err) {
         appendMessage("bot", "伺服器出錯，請稍後再試");
         console.error(err);
+        kbBox.innerHTML = "系統知識庫無法取得";
     }
 }
+
 
 window.onload = () => {
     createDefaultInput();
@@ -276,5 +289,6 @@ window.onload = () => {
 
 </body>
 </html>
+
 
 
