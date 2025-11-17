@@ -258,8 +258,8 @@ async function askQuestion() {
         appendMessage("bot", data.answer);
 
         // KB 只在功能 1 顯示
-        if(currentFunction === 1 && data.knowledge) {
-            kbBox.innerHTML = data.knowledge;
+        if (currentFunction === 1 && data.kb_text) {
+            kbBox.innerHTML = data.kb_text;
         }
 
     } catch(err) {
@@ -276,4 +276,5 @@ window.onload = () => {
 
 </body>
 </html>
+
 
