@@ -224,12 +224,12 @@ async function askQuestion() {
         const q = document.getElementById("question").value.trim();
         if(!q) return;
         appendMessage("user", q);
-        payload = { question: q, separate: true };
+        payload = { question: q};
         endpoint = `${BASE_URL}/ask`;
         document.getElementById("question").value = "";
 
         // KB 顯示等待訊息
-        kbBox.innerHTML = "系統知識庫正在生成中，請稍候…";
+        kbBox.innerHTML = "系統知識庫正在搜尋中，請稍候…";
 
     } else if(currentFunction === 2) {
         const q = document.getElementById("question").value.trim();
@@ -289,6 +289,7 @@ window.onload = () => {
 
 </body>
 </html>
+
 
 
 
