@@ -58,6 +58,22 @@ body{
 .btn.ghost{background:transparent; border:1px solid #e6e9ef; color:var(--muted);} 
 .helper{font-size:13px; color:var(--muted); margin-top:6px}
 
+.chat-controls{
+  display:flex;
+  justify-content:space-between; /* 左右分開 */
+  align-items:center;
+  gap:8px;
+  margin-bottom:10px;
+  flex-wrap:wrap;
+}
+
+.chat-controls-left,
+.chat-controls-right{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+
 /* =====================
    FAQ 區塊（放在清除鈕上面）
    ===================== */
@@ -168,6 +184,24 @@ body{
 }
 .quiz-question select{
   width:120px;
+}
+
+/* 資產配置圖表顯示 */
+.asset-chart{
+  display:block;
+  margin:12px auto 0 auto;   /* 置中 */
+  max-width:420px;           
+  width:100%;
+  border-radius:10px;
+  border:1px solid #e5e7eb;
+  background:#fff;
+}
+
+/* 小螢幕自動縮 */
+@media (max-width: 600px){
+  .asset-chart{
+    max-width:100%;
+  }
 }
 
 /* 深色模式 */
@@ -282,11 +316,19 @@ body.dark-mode .quiz-title{
         </div>
 
         <div class="chat-controls">
-          <button class="btn ghost" id="themeToggle">深色</button>
-          <button class="btn ghost" id="clearBtn">清除</button>
-          <button class="btn ghost" id="kbToggleBtn">補充資訊</button>
-          <!-- 補充資訊後新增「刷新 FAQ」 -->
-          <button class="btn ghost" id="faqRefreshBtn" title="重新整理 FAQ">FAQ刷新</button>
+            <!-- 左側按鈕群 -->
+            <div class="chat-controls-left">
+                <button class="btn ghost" id="themeToggle">深色</button>
+                <button class="btn ghost" id="clearBtn">清除</button>
+                <button class="btn ghost" id="kbToggleBtn">補充資訊</button>
+            </div>
+
+            <!-- 右側按鈕 -->
+            <div class="chat-controls-right">
+                <button class="btn ghost" id="faqRefreshBtn" title="重新整理 FAQ">
+                今日問題刷新
+                </button>
+            </div>
         </div>
 
         <div id="chatLog" class="chat-log"></div>
@@ -444,38 +486,51 @@ functionButtons.forEach(btn=>{
 
 function updateModeUI(){
   if(currentMode==="1"){
+    // ===== 金融問答 =====
     questionInput.style.display="block";
     questionInput.placeholder="請輸入金融相關問題...";
     questionInput.value="";
     assetPanel.style.display="none";
 
-    faqBar.style.display="block";          //顯示 FAQ
-    faqRefreshBtn.disabled=false;
+    // FAQ 顯示
+    faqBar.style.display="block";
+    faqRefreshBtn.style.display="inline-flex";
 
-    kbToggleBtn.disabled=false;
+    // KB 改名
+    kbToggleBtn.style.display="inline-flex";
     kbToggleBtn.textContent="補充資訊";
+
     helperText.textContent="金融問答：輸入問題後按 Enter 或「送出」。";
+
   }else if(currentMode==="2"){
+    // ===== 新聞摘要 =====
     questionInput.style.display="block";
     questionInput.placeholder="請貼上新聞網址...";
     questionInput.value="";
     assetPanel.style.display="none";
 
-    faqBar.style.display="none";           //隱藏 FAQ
-    faqRefreshBtn.disabled=true;
+    // FAQ 不顯示
+    faqBar.style.display="none";
+    faqRefreshBtn.style.display="none";
 
-    kbToggleBtn.disabled=false;
-    kbToggleBtn.textContent="補充資訊";
+    // KB 改名
+    kbToggleBtn.style.display="inline-flex";
+    kbToggleBtn.textContent="新聞關鍵字";
+
     helperText.textContent="新聞摘要：貼上新聞網址後按 Enter 或「送出」。";
+
   }else{
+    // ===== 資產配置 =====
     questionInput.style.display="none";
     assetPanel.style.display="flex";
 
-    faqBar.style.display="none";           //隱藏 FAQ
-    faqRefreshBtn.disabled=true;
+    // FAQ 不顯示
+    faqBar.style.display="none";
+    faqRefreshBtn.style.display="none";
 
-    kbToggleBtn.disabled=true;
-    kbToggleBtn.textContent="（資產配置無補充）";
+    // KB 不顯示
+    kbToggleBtn.style.display="none";
+
     helperText.textContent="資產配置：填年齡可略過問卷；不填年齡需完成 10 題問卷，再輸入金額送出。";
   }
 }
@@ -496,7 +551,7 @@ function renderFAQ(faqs){
     pill.className = "faq-pill";
     pill.textContent = text;
 
-    // 點一下 FAQ → 帶入輸入框（不自動送出，避免誤觸）
+    // 點一下 FAQ直接帶入輸入框（不自動送出）
     pill.addEventListener("click", ()=>{
       questionInput.value = text;
       questionInput.focus();
@@ -606,7 +661,9 @@ async function ask(){
         <div class="message msg-bot">
           ${answerText}
           <div style="margin-top:10px;">
-            <img src="${data.chart}" alt="資產配置圓餅圖" style="max-width:260px;border-radius:8px;border:1px solid #e5e7eb;">
+            <img src="${data.chart}"
+            alt="資產配置圓餅圖"
+            class="asset-chart">
           </div>
         </div>`;
     }else{
