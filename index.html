@@ -2,294 +2,647 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<title>多功能聊天系統</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>多功能聊天系統（右側按鈕版）</title>
 <style>
-body {
-    font-family: "微軟正黑體", sans-serif;
-    max-width: 1000px;
-    margin: 40px auto;
+:root{
+  --bg:#f4f6fb;
+  --card:#ffffff;
+  --muted:#6b7280;
+  --primary:#2563eb;
+  --accent:#ffb300;
+  --radius:12px;
+  --shadow:0 6px 18px rgba(16,24,40,0.06);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; padding:24px; background:var(--bg);
+  font-family:"Microsoft JhengHei", system-ui, -apple-system, "Segoe UI", Roboto;
+  color:#0f172a; display:flex; justify-content:center; align-items:flex-start;
+  overflow-x:hidden;
+}
+.container{width:100%; max-width:1400px}
+.header{display:flex; align-items:center; margin-bottom:12px;}
+.title{display:flex; gap:12px; align-items:center;}
+.logo{width:44px; height:44px; border-radius:10px; background:linear-gradient(135deg,var(--primary),#4f46e5); display:flex; align-items:center; justify-content:center; color:white; font-weight:700; box-shadow:var(--shadow);}
+.h1{font-size:20px; font-weight:700;}
+
+.function-bar-wrapper{display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;}
+.function-bar{display:flex; gap:8px;}
+.function-bar button{padding:10px 18px; border-radius:999px; border:1px solid #c7ccd8; background:transparent; cursor:pointer; font-weight:600; color:var(--muted);} 
+.function-bar button.active{background:linear-gradient(90deg,var(--primary),#3b82f6); color:white; box-shadow:var(--shadow);} 
+
+.panel{display:flex; gap:20px; padding:0 20px; justify-content:center; transition:transform 0.32s ease;}
+.left{flex:1; position:relative;}
+.right{width:0;}
+
+.card.chat-area{width:100%; padding:16px 24px 12px 24px; max-width:1000px; margin:0 auto;}
+
+.chat-controls{display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap;}
+.chat-log{height:60vh; min-height:420px; overflow:auto; padding:8px; border-radius:10px; background:linear-gradient(180deg,#fbfdff,#f8fbff);} 
+.message{display:block !important; padding:10px 14px; border-radius:12px; margin:8px 0; max-width:78%; word-break:break-word; box-shadow:0 2px 6px rgba(15,23,42,0.04);} 
+.msg-user{margin-left:auto; background:#e6f0ff; text-align:right;}
+.msg-bot{margin-right:auto; background:#f0fff4; text-align:left;}
+.msg-meta{font-size:12px; color:var(--muted); margin-top:6px;}
+.kb{height:100%; overflow:auto;}
+
+.input-area{display:flex; gap:8px; align-items:flex-end; margin-top:12px; flex-wrap:wrap;} 
+.input-area textarea{
+  flex:1; min-height:56px; max-height:160px;
+  resize:vertical; padding:12px; border-radius:10px;
+  border:1px solid #e6e9ef; font-size:15px;
+} 
+.btn{padding:10px 14px; border-radius:10px; border:none; cursor:pointer; font-weight:600;} 
+.btn.primary{background:var(--primary); color:white;} 
+.btn.ghost{background:transparent; border:1px solid #e6e9ef; color:var(--muted);} 
+.helper{font-size:13px; color:var(--muted); margin-top:6px}
+
+/* =====================
+   FAQ 區塊（放在清除鈕上面）
+   ===================== */
+#faqBar{
+  display:none;                 /* 只在金融問答顯示（JS 控制） */
+  margin-bottom:10px;
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid #e5e7eb;
+  background:#f8fafc;
+}
+.faq-row{
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+  flex-wrap:wrap;              /* 超過就換行 */
+}
+.faq-title{
+  font-weight:800;
+  white-space:nowrap;
+}
+#faqList{
+  display:flex;
+  gap:8px;
+  flex:1;
+  flex-wrap:wrap;              /* 超過就換行 */
+}
+.faq-pill{
+  padding:6px 10px;
+  border-radius:999px;
+  border:1px solid #c7d2fe;
+  background:#eef2ff;
+  font-size:13px;
+  cursor:pointer;
+
+  /* 完整顯示 */
+  white-space:normal;
+  word-break:break-word;
+  line-height:1.4;
+  max-width:100%;
+}
+.faq-pill:hover{background:#e0e7ff}
+
+/* =====================
+   資產配置（問卷版）表單
+   ===================== */
+#assetPanel{
+  display:none; /*預設先隱藏，顯示由 JS 控制 */
+  width:100%;
+  border-radius:10px;
+  border:1px solid #e5e7eb;
+  padding:12px;
+  background:#f9fafb;
+
+  gap:12px;
+  justify-content:space-between;
+  flex-wrap:wrap;
 }
 
-/* 標題 */
-h1 {
-    text-align: center;
-    margin-bottom: 10px;
+.asset-field{
+  display:flex;
+  flex-direction:column;
+  flex:1;
+  min-width:220px;
+  padding:6px;
 }
 
-/* 功能按鈕 */
-#function-bar {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin-bottom: 20px;
-}
-#function-bar button {
-    padding: 12px 100px;
-    font-size: 16px;
-    border-radius: 6px;
-    border: 1px solid #aaa;
-    background: #f5f5f5;
-    cursor: pointer;
-    transition: 0.2s;
-}
-#function-bar button:hover { background: #e0e0e0; }
-#function-bar button:active { transform: scale(0.96); }
-#function-bar .active {
-    background: #007bff;
-    color: white;
-    border-color: #007bff;
-    font-weight: bold;
+.asset-field label{
+  font-size:14px;
+  font-weight:600;
+  color:#4b5563;
+  margin-bottom:6px;
 }
 
-/* 主區域：對話框 + KB */
-#main-area {
-    display: flex;
-    gap: 10px;
-    height: 500px;          /* 原本高度 */
-    margin-bottom: 20px;    /* 新增底部間距，避免覆蓋輸入框 */
+.asset-field input,
+.asset-field select{
+  padding:10px 12px;
+  border-radius:10px;
+  border:1px solid #cbd5e1;
+  font-size:15px;
+  background:white;
 }
 
-/* 對話框 */
-#chat-box {
-    flex: 3;
-    border: 1px solid #ccc;
-    padding: 10px;
-    height: 500px;
-    overflow-y: auto;
-    background-color: #f9f9f9;
-    border-radius: 10px;
+/* 問卷區塊 */
+#quizPanel{
+  flex: 3;
+  min-width: 320px;
+  padding: 6px;
+  border-radius: 10px;
+  border: 1px dashed #cbd5e1;
+  background: #ffffff;
 }
-.message {
-    margin: 10px 0;
-    padding: 10px;
-    border-radius: 10px;
-    max-width: 70%;
-    word-wrap: break-word;
+.quiz-title{
+  font-weight:700;
+  margin-bottom:10px;
+  color:#0f172a;
 }
-.user { background-color: #d1e7ff; margin-left: auto; text-align: right; }
-.bot { background-color: #e2f0d9; margin-right: auto; text-align: left; }
-
-/* KB 右側框，隨聊天框高度自適應 */
-#kb-box {
-    flex: 1;
-    border-left: 5px solid #ffb300;
-    border-radius: 5px;
-    padding: 10px;
-    background: #fff9e6;
-    overflow-y: auto;
-    display: none;
+.quiz-question{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  padding:8px 10px;
+  border-radius:10px;
+  border:1px solid #eef2f7;
+  margin-bottom:8px;
+  font-size:14px;
+}
+.quiz-question select{
+  width:120px;
 }
 
-/* 下方輸入區 */
-#input-area {
-    margin-top: 30px;
-    display: flex;
-    gap: 5px;
+/* 深色模式 */
+body.dark-mode{background:#0b1220; color:#e6e6ee;}
+body.dark-mode .card{background:#071022;}
+body.dark-mode .chat-log{background:linear-gradient(180deg,#071022,#081226);}
+body.dark-mode input, body.dark-mode textarea{background:#0f1724; color:#e6eef8; border-color:#22303f}
+body.dark-mode .btn.ghost{border-color:#22303f; color:#cbd5e1;}
+body.dark-mode .function-bar button{border-color:#22303f; color:#cbd5e1;}
+body.dark-mode .function-bar button.active{color:#fff;}
+body.dark-mode .msg-user{background:#12305a; color:#e6eef8;}
+body.dark-mode .msg-bot{background:#113d25; color:#e6eef8;}
+body.dark-mode{
+  --bg:#0b1220;
+  --card:#071022;
+  --muted:#cbd5e1;
 }
-textarea, input, select {
-    flex: 1;
-    padding: 10px;
-    font-size: 16px;
-    margin-right: 5px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-}
-button { padding: 10px 15px; font-size: 16px; cursor: pointer; border-radius: 6px; }
 
-/* 讓主區域跟 KB 高度同步 */
-#main-area { height: 500px; }
-#chat-box, #kb-box { height: 100%; }
+/* FAQ 深色 */
+body.dark-mode #faqBar{
+  background:#0b1625;
+  border-color:#22303f;
+}
+body.dark-mode .faq-pill{
+  background:#1e3a8a;
+  border-color:#334155;
+  color:#e6eef8;
+}
+body.dark-mode .faq-pill:hover{filter:brightness(1.05);}
+
+body.dark-mode #assetPanel{
+  background:#0f172a;
+  border-color:#1e293b;
+}
+body.dark-mode #quizPanel{
+  background:#0b1625;
+  border-color:#334155;
+}
+body.dark-mode .quiz-question{
+  border-color:#22303f;
+  background:#0f1724;
+}
+body.dark-mode .asset-field input,
+body.dark-mode .asset-field select,
+body.dark-mode .quiz-question select{
+  background:#0b1625;
+  border-color:#334155;
+  color:#e2e8f0;
+}
+body.dark-mode .asset-field label,
+body.dark-mode .quiz-title{
+  color:#cbd5e1;
+}
+
+/* 右側 KBBOX  */
+#kbBox{
+  position:fixed;
+  top:0; right:0;
+  width:320px; height:100vh;
+  background:var(--card);
+  padding:20px;
+  box-shadow:-3px 0 18px rgba(2,6,23,0.25);
+  transform:translateX(100%);
+  transition:transform .32s cubic-bezier(.25,.8,.25,1);
+  z-index:1500;
+  pointer-events:none;
+}
+#kbBox.open{
+  transform:translateX(0);
+  pointer-events:auto;
+}
+.panel.shift-left{
+  transform:translateX(-140px);
+}
+
+/* user messages align right */
+.message.msg-user{ margin-left:auto; background:#e6f3ff; border:1px solid #bcdff6; text-align:right; }
+.msg-meta{ display:none !important; }
 </style>
 </head>
 <body>
+<div class="container">
+  <div class="header">
+    <div class="title">
+      
+      <div>
+        <div class="h1">個人化金融輔助系統</div>
+      </div>
+    </div>
+  </div>
 
-<h1 id="system-title">金融問答聊天系統</h1>
+  <div class="function-bar-wrapper">
+    <div class="function-bar" role="tablist">
+      <button class="active" data-id="1">金融問答</button>
+      <button data-id="2">新聞摘要</button>
+      <button data-id="3">資產配置</button>
+    </div>
+  </div>
 
-<!-- 功能按鈕 -->
-<div id="function-bar">
-    <button class="active" onclick="switchSystem(1)">金融問答</button>
-    <button onclick="switchSystem(2)">新聞摘要</button>
-    <button onclick="switchSystem(3)">資產配置</button>
+  <div class="panel">
+    <div class="left">
+      <div class="card chat-area">
+
+        <!-- FAQ：放在清除按鈕（chat-controls）上面 -->
+        <div id="faqBar">
+          <div class="faq-row">
+            <div class="faq-title">今日常見問題</div>
+            <div id="faqList">
+              <span class="faq-pill">載入中…</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-controls">
+          <button class="btn ghost" id="themeToggle">深色</button>
+          <button class="btn ghost" id="clearBtn">清除</button>
+          <button class="btn ghost" id="kbToggleBtn">補充資訊</button>
+          <!-- 補充資訊後新增「刷新 FAQ」 -->
+          <button class="btn ghost" id="faqRefreshBtn" title="重新整理 FAQ">FAQ刷新</button>
+        </div>
+
+        <div id="chatLog" class="chat-log"></div>
+
+        <div class="input-area" id="inputArea">
+          <textarea id="question" placeholder="請輸入問題..."></textarea>
+
+          <div id="assetPanel">
+            <div class="asset-field">
+              <label for="ageInput">年齡（填寫後可略過問卷）</label>
+              <input type="number" id="ageInput" placeholder="例如：30">
+            </div>
+
+            <div id="quizPanel">
+              <div class="quiz-title">投資風險問卷（1～5 分）</div>
+
+              <div class="quiz-question">1. 你對投資的理解程度？
+                <select class="quiz-score"><option value="">請選擇</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select>
+              </div>
+              <div class="quiz-question">2. 你的投資目標？
+                <select class="quiz-score"><option value="">請選擇</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select>
+              </div>
+              <div class="quiz-question">3. 你能承受虧損？
+                <select class="quiz-score"><option value="">請選擇</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select>
+              </div>
+              <div class="quiz-question">4. 市場下跌 20% 時你的反應？
+                <select class="quiz-score"><option value="">請選擇</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select>
+              </div>
+              <div class="quiz-question">5. 預期投資期間？
+                <select class="quiz-score"><option value="">請選擇</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select>
+              </div>
+              <div class="quiz-question">6. 收入穩定度？
+                <select class="quiz-score"><option value="">請選擇</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select>
+              </div>
+              <div class="quiz-question">7. 緊急預備金是否充足？
+                <select class="quiz-score"><option value="">請選擇</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select>
+              </div>
+              <div class="quiz-question">8. 投資經驗？
+                <select class="quiz-score"><option value="">請選擇</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select>
+              </div>
+              <div class="quiz-question">9. 對市場波動的心理反應？
+                <select class="quiz-score"><option value="">請選擇</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select>
+              </div>
+              <div class="quiz-question">10. 願意投資的工具種類？
+                <select class="quiz-score"><option value="">請選擇</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select>
+              </div>
+            </div>
+
+            <div class="asset-field">
+              <label for="amountInput">投資金額（必填）</label>
+              <input type="number" id="amountInput" placeholder="例如：100000">
+            </div>
+          </div>
+
+          <button class="btn primary" id="sendBtn">送出</button>
+        </div>
+
+        <div class="helper" id="helperText">
+          金融 / 新聞：輸入文字後按 Enter 或「送出」。資產配置：可填年齡略過問卷，或完成問卷再送出。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="kbBox" class="card kb">
+    <div><strong>補充資訊</strong></div>
+    <div id="kbContent">尚無內容</div>
+  </div>
 </div>
-
-<!-- 主區域：聊天框 + KB -->
-<div id="main-area">
-    <div id="chat-box"></div>
-    <div id="kb-box"></div>
-</div>
-
-<!-- 輸入區 -->
-<div id="input-area"></div>
 
 <script>
-let BASE_URL = "https://odelia-apetalous-nonmutably.ngrok-free.dev"; // ← 固定後端 URL
-let currentFunction = 1;
-const chatBox = document.getElementById("chat-box");
-const kbBox = document.getElementById("kb-box");
-const inputArea = document.getElementById("input-area");
+const chatLog = document.getElementById('chatLog');
+const kbContent = document.getElementById('kbContent');
+const sendBtn = document.getElementById('sendBtn');
+const themeBtn = document.getElementById('themeToggle');
+const clearBtn = document.getElementById('clearBtn');
+const kbToggleBtn = document.getElementById('kbToggleBtn');
+const faqRefreshBtn = document.getElementById('faqRefreshBtn');
 
-/* ======================== 建立輸入框 ======================== */
-function createDefaultInput() {
-    inputArea.innerHTML = `
-        <textarea id="question" placeholder="請輸入你的問題..." rows="2"></textarea>
-        <button onclick="askQuestion()">送出</button>
-        <button onclick="clearChat()">清除對話</button>
-    `;
-    const questionInput = document.getElementById("question");
-    questionInput.addEventListener("keydown", e => {
-        if(e.key === "Enter" && !e.shiftKey){
-            e.preventDefault();
-            askQuestion();
-        }
+const functionButtons = document.querySelectorAll('.function-bar button');
+const questionInput = document.getElementById('question');
+const helperText = document.getElementById('helperText');
+
+const assetPanel = document.getElementById('assetPanel');
+const ageInput = document.getElementById('ageInput');
+const amountInput = document.getElementById('amountInput');
+
+const faqBar = document.getElementById('faqBar');
+const faqListEl = document.getElementById('faqList');
+
+const BASE_URL = "https://odelia-apetalous-nonmutably.ngrok-free.dev";
+
+let currentMode = "1";
+
+sendBtn.addEventListener('click', ()=>{ ask(); });
+
+questionInput.addEventListener('keydown', e=>{
+  if(e.key==='Enter' && !e.shiftKey && currentMode!=="3"){
+    e.preventDefault();
+    ask();
+  }
+});
+
+amountInput.addEventListener('keydown', e=>{
+  if(currentMode==="3" && e.key==="Enter"){
+    e.preventDefault();
+    ask();
+  }
+});
+
+themeBtn.addEventListener('click', ()=>{
+  const dark = document.body.classList.toggle('dark-mode');
+  themeBtn.textContent = dark ? '淺色' : '深色';
+});
+
+clearBtn.addEventListener('click', ()=>{
+  chatLog.innerHTML='';
+  kbContent.textContent='尚無內容';
+});
+
+/* KBBOX 抽屜切換 */
+kbToggleBtn.addEventListener('click', ()=>{
+  const kb = document.getElementById('kbBox');
+  const panel = document.querySelector('.panel');
+  kb.classList.toggle('open');
+  if(kb.classList.contains('open')) panel.classList.add('shift-left');
+  else panel.classList.remove('shift-left');
+});
+
+/* FAQ 刷新（ */
+faqRefreshBtn.addEventListener('click', async ()=>{
+  if(currentMode !== "1") return; // 只在金融問答有效
+  await refreshFAQ();
+});
+
+/* 功能切換：切換就清空對話 */
+functionButtons.forEach(btn=>{
+  btn.addEventListener('click', async ()=>{
+    functionButtons.forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    currentMode = btn.dataset.id;
+
+    // 切換功能就清空
+    chatLog.innerHTML='';
+    kbContent.textContent='尚無內容';
+
+    updateModeUI();
+
+    // 切回金融問答時，自動刷新 FAQ
+    if(currentMode === "1"){
+      await refreshFAQ();
+    }
+  });
+});
+
+function updateModeUI(){
+  if(currentMode==="1"){
+    questionInput.style.display="block";
+    questionInput.placeholder="請輸入金融相關問題...";
+    questionInput.value="";
+    assetPanel.style.display="none";
+
+    faqBar.style.display="block";          //顯示 FAQ
+    faqRefreshBtn.disabled=false;
+
+    kbToggleBtn.disabled=false;
+    kbToggleBtn.textContent="補充資訊";
+    helperText.textContent="金融問答：輸入問題後按 Enter 或「送出」。";
+  }else if(currentMode==="2"){
+    questionInput.style.display="block";
+    questionInput.placeholder="請貼上新聞網址...";
+    questionInput.value="";
+    assetPanel.style.display="none";
+
+    faqBar.style.display="none";           //隱藏 FAQ
+    faqRefreshBtn.disabled=true;
+
+    kbToggleBtn.disabled=false;
+    kbToggleBtn.textContent="補充資訊";
+    helperText.textContent="新聞摘要：貼上新聞網址後按 Enter 或「送出」。";
+  }else{
+    questionInput.style.display="none";
+    assetPanel.style.display="flex";
+
+    faqBar.style.display="none";           //隱藏 FAQ
+    faqRefreshBtn.disabled=true;
+
+    kbToggleBtn.disabled=true;
+    kbToggleBtn.textContent="（資產配置無補充）";
+    helperText.textContent="資產配置：填年齡可略過問卷；不填年齡需完成 10 題問卷，再輸入金額送出。";
+  }
+}
+
+/* 渲染 FAQ：完整顯示 + 自動換行 */
+function renderFAQ(faqs){
+  faqListEl.innerHTML = "";
+  if(!Array.isArray(faqs) || faqs.length === 0){
+    const s = document.createElement("span");
+    s.className = "faq-pill";
+    s.textContent = "（目前沒有 FAQ）";
+    faqListEl.appendChild(s);
+    return;
+  }
+
+  faqs.forEach(text=>{
+    const pill = document.createElement("span");
+    pill.className = "faq-pill";
+    pill.textContent = text;
+
+    // 點一下 FAQ → 帶入輸入框（不自動送出，避免誤觸）
+    pill.addEventListener("click", ()=>{
+      questionInput.value = text;
+      questionInput.focus();
     });
+
+    faqListEl.appendChild(pill);
+  });
 }
 
-function createnewsInput() {
-    inputArea.innerHTML = `
-        <textarea id="question" placeholder="請輸入你的新聞網址..." rows="2"></textarea>
-        <button onclick="askQuestion()">送出</button>
-        <button onclick="clearChat()">清除對話</button>
-    `;
-    const questionInput = document.getElementById("question");
-    questionInput.addEventListener("keydown", e => {
-        if(e.key === "Enter" && !e.shiftKey){
-            e.preventDefault();
-            askQuestion();
-        }
+/* 刷新 FAQ：打 /ask 拿 faqs（不動 prompt 的前提下，只能讓後端回 faqs） */
+async function refreshFAQ(){
+  try{
+    faqListEl.innerHTML = `<span class="faq-pill">載入中…</span>`;
+
+    // 這裡送一個簡單字串，後端如果不特判也沒關係，只要仍回 faqs 就能渲染
+    const res = await fetch(BASE_URL + "/ask", {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({ question: "FAQ_REFRESH" })
     });
+
+    const data = await res.json();
+    renderFAQ(data.faqs);
+
+  }catch(err){
+    console.error(err);
+    faqListEl.innerHTML = `<span class="faq-pill">FAQ 載入失敗</span>`;
+  }
 }
 
-function createAssetInput() {
-    inputArea.innerHTML = `
-        <input type="number" id="age" placeholder="年齡 (與風險偏好擇一填入)">
-        <select id="risk">
-            <option value="">風險偏好 (與年齡擇一填入)</option>
-            <option value="高">高</option>
-            <option value="中">中</option>
-            <option value="低">低</option>
-        </select>
-        <input type="number" id="amount" placeholder="投資金額 (必填)">
-        <button onclick="askQuestion()">送出</button>
-        <button onclick="clearChat()">清除對話</button>
-    `;
-    const amountInput = document.getElementById("amount");
-    amountInput.addEventListener("keydown", e => {
-        if(e.key === "Enter"){
-            e.preventDefault();
-            askQuestion();
-        }
-    });
-}
+async function ask(){
+  const q = questionInput.value.trim();
+  if(currentMode!=="3" && !q) return;
 
-/* ======================== 顯示訊息 ======================== */
-function appendMessage(role, text) {
-    const div = document.createElement("div");
-    div.className = "message " + role;
-    div.innerHTML = text;
-    chatBox.appendChild(div);
-    chatBox.scrollTop = chatBox.scrollHeight;
-}
+  let userText = "";
+  let endpoint = "";
+  let payload = {};
 
-function clearChat() {
-    chatBox.innerHTML = "";
-    kbBox.innerHTML = "";
-}
+  if(currentMode==="1"){
+    endpoint="/ask";
+    payload={question:q};
+    userText=q;
+    questionInput.value='';
+    kbContent.textContent='系統查詢中...';
+  }
+  else if(currentMode==="2"){
+    endpoint="/news";
+    payload={question:q};
+    userText="新聞網址：\n"+q;
+    questionInput.value='';
+    kbContent.textContent='系統查詢中...';
+  }
+  else{
+    endpoint="/asset";
 
-/* ======================== 切換功能 ======================== */
-function switchSystem(n) {
-    currentFunction = n;
+    const ageVal = ageInput.value.trim();
+    const amountVal = amountInput.value.trim();
 
-    document.querySelectorAll("#function-bar button").forEach(btn => btn.classList.remove("active"));
-    document.querySelector(`#function-bar button:nth-child(${n})`).classList.add("active");
-
-    clearChat();
-
-    if(n === 1) createDefaultInput();
-    else if(n === 2) createnewsInput();
-    else createAssetInput();
-
-    // KB 只在功能 1 顯示
-    kbBox.style.display = n === 1 ? "block" : "none";
-
-    const titles = ["金融問答聊天系統", "新聞摘要系統", "資產配置系統"];
-    document.getElementById("system-title").innerText = titles[n - 1];
-}
-
-/* ======================== 送出問題 ======================== */
-async function askQuestion() {
-    let endpoint = "";
-    let payload = {};
-
-    if(currentFunction === 1) {
-        const q = document.getElementById("question").value.trim();
-        if(!q) return;
-        appendMessage("user", q);
-        payload = { question: q};
-        endpoint = `${BASE_URL}/ask`;
-        document.getElementById("question").value = "";
-
-        // KB 顯示等待訊息
-        kbBox.innerHTML = "系統知識庫正在搜尋中，請稍候…";
-
-    } else if(currentFunction === 2) {
-        const q = document.getElementById("question").value.trim();
-        if(!q) return;
-        appendMessage("user", q);
-        payload = { question: q };
-        endpoint = `${BASE_URL}/news`;
-        document.getElementById("question").value = "";
-
-        // KB 功能只在功能1顯示，所以這裡清空
-        kbBox.innerHTML = "";
-
-    } else {
-        const age = document.getElementById("age").value || null;
-        const risk = document.getElementById("risk").value || null;
-        const amount = document.getElementById("amount").value;
-        if(!amount) return alert("請輸入金額");
-        appendMessage("user", `年齡:${age || "未填"}, 風險:${risk || "未填"}, 金額:${amount}`);
-        payload = { age, risk_level: risk, amount };
-        endpoint = `${BASE_URL}/asset`;
-        document.getElementById("amount").value = "";
-
-        kbBox.innerHTML = "";
+    if(!amountVal){
+      alert("請輸入投資金額");
+      return;
     }
 
-    try {
-        const res = await fetch(endpoint, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
-        });
-        const data = await res.json();
+    payload = { amount: Number(amountVal) };
 
-        // 更新聊天框
-        appendMessage("bot", data.answer);
+    if(ageVal !== ""){
+      payload.age = Number(ageVal);
+      userText = `年齡：${ageVal}，金額：${amountVal}`;
+    }else{
+      const scores = [];
+      const selects = document.querySelectorAll(".quiz-score");
 
-        // 更新 KBBOX（只在功能1）
-        if(currentFunction === 1 && data.kb_text) {
-            kbBox.innerHTML = data.kb_text;
-        } else {
-            kbBox.innerHTML = "";
+      for(const sel of selects){
+        if(sel.value === ""){
+          alert("請完成所有問卷題目（1～5 分）");
+          return;
         }
+        scores.push(Number(sel.value));
+      }
 
-    } catch(err) {
-        appendMessage("bot", "伺服器出錯，請稍後再試");
-        console.error(err);
-        kbBox.innerHTML = "系統知識庫無法取得";
+      payload.quiz_scores = scores;
+      userText = `投資問卷完成，金額：${amountVal}`;
     }
+
+    kbContent.textContent='資產配置工具不使用補充資訊。';
+  }
+
+  const wrap=document.createElement('div');
+  wrap.innerHTML=`<div class="message msg-user">${userText.replace(/\n/g,"<br>")}</div>`;
+  chatLog.appendChild(wrap);
+  chatLog.scrollTop=chatLog.scrollHeight;
+
+  try{
+    const res=await fetch(BASE_URL+endpoint,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
+    });
+
+    const data=await res.json();
+    const bot=document.createElement('div');
+
+    const answerText=(data.answer||'無內容').replace(/\n/g,"<br>");
+
+    if(currentMode==="3" && data.chart){
+      bot.innerHTML=`
+        <div class="message msg-bot">
+          ${answerText}
+          <div style="margin-top:10px;">
+            <img src="${data.chart}" alt="資產配置圓餅圖" style="max-width:260px;border-radius:8px;border:1px solid #e5e7eb;">
+          </div>
+        </div>`;
+    }else{
+      bot.innerHTML=`<div class="message msg-bot">${answerText}</div>`;
+    }
+
+    chatLog.appendChild(bot);
+    chatLog.scrollTop=chatLog.scrollHeight;
+
+    if(currentMode==="1"){
+      kbContent.innerHTML = data.kb_text || '尚無內容';
+
+      // /ask 回來就順便更新 FAQ（後端有回 faqs 的話）
+      if(data.faqs) renderFAQ(data.faqs);
+
+    }else if(currentMode==="2"){
+      kbContent.innerHTML = data.kb_text || (
+        data.keywords ? ("<b>重要關鍵字</b><br>"+data.keywords) : "尚無內容"
+      );
+    }else{
+      kbContent.textContent='資產配置工具不使用補充資訊。';
+    }
+
+  }catch(err){
+    console.error(err);
+    const bot=document.createElement('div');
+    bot.innerHTML=`<div class="message msg-bot">伺服器錯誤，請確認後端是否啟動與 CORS 設定。</div>`;
+    chatLog.appendChild(bot);
+    kbContent.textContent='呼叫後端發生錯誤。';
+  }
 }
 
-
-window.onload = () => {
-    createDefaultInput();
-    kbBox.style.display = "block"; // 初始顯示 KB
-};
+// 初始 UI
+updateModeUI();
+// 初次載入金融問答時，先抓 FAQ
+refreshFAQ();
 </script>
-
 </body>
 </html>
-
-
-
-
